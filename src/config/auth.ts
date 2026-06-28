@@ -1,11 +1,9 @@
-// ▼▼ 認証モードにあわせていずれかを有効にする
+// 本実装では「トークンベース（JWT）認証」のみを使用します
+const AUTH_MODE = "jwt" as const;
 
-const AUTH_MODE = "session" as "session" | "jwt";
-// const AUTH_MODE = "jwt" as "session" | "jwt";
-
-// 認証モードの設定 (ここは変更しない)
+// 認証モードの設定
 export const AUTH = {
   mode: AUTH_MODE,
-  isSession: AUTH_MODE === "session",
-  isJWT: AUTH_MODE === "jwt",
+  isSession: false,
+  isJWT: true,
 } as const;
