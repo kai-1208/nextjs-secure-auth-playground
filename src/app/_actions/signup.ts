@@ -1,5 +1,6 @@
 "use server";
 
+import bcrypt from "bcryptjs";
 import { prisma } from "@/libs/prisma";
 import { signupRequestSchema } from "@/app/_types/SignupRequest";
 import { userProfileSchema } from "@/app/_types/UserProfile";
@@ -13,10 +14,9 @@ export const signupServerAction = async (
 ): Promise<ServerActionResponse<UserProfile | null>> => {
   try {
     // 入力検証
-    // 💀 現状では日本語のPWも受け入れてしまう -> SignupRequest のバリデーション見直し
     const payload = signupRequestSchema.parse(signupRequest);
 
-    // 💡スパム登録対策（1秒遅延）
+    // スパム登録対策（1秒遅延）
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
     // 既に登録済みユーザのサインアップではないか確認
@@ -24,8 +24,6 @@ export const signupServerAction = async (
       where: { email: payload.email },
     });
     if (existingUser) {
-      // 💀 このアカウントがシステムに存在することを知らせてしまうことになる。
-      // 認証メールを送信するなどの方法が望ましい
       return {
         success: false,
         payload: null,
@@ -34,9 +32,7 @@ export const signupServerAction = async (
     }
 
     // パスワードのハッシュ化
-    // 💀 ハッシュ化せずにPW保存（ダメ絶対）
-    const hashedPassword = payload.password;
-    // const hashedPassword = await bcrypt.hash(payload.password, 10);
+    const hashedPassword = await bcrypt.hash(payload.password, 10);
 
     // ユーザの作成
     const user = await prisma.user.create({
@@ -44,14 +40,15 @@ export const signupServerAction = async (
         email: payload.email,
         password: hashedPassword,
         name: payload.name,
+        role: "USER",
+        isActive: true,
       },
     });
 
     // レスポンスの生成
-    // 💀 パスワードは無論、不要な情報はレスポンスしない。
     const res: ServerActionResponse<UserProfile> = {
       success: true,
-      payload: userProfileSchema.parse(user), // 余分なプロパティを削除,
+      payload: userProfileSchema.parse(user),
       message: "",
     };
     return res;
@@ -62,9 +59,6 @@ export const signupServerAction = async (
       success: false,
       payload: null,
       message: errorMsg,
-      // 💀 エラーメッセージはユーザに見せない方が良い
-      // システム内部構造や依存関係をユーザに漏らす可能性がある
-      // message: "サインアップのサーバサイドの処理に失敗しました。",
     };
   }
 };
