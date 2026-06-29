@@ -30,7 +30,7 @@ export const Header: React.FC = () => {
               WebSecPlayground
             </NextLink>
             <span className="ml-1 text-xs font-normal">
-              {AUTH.isSession ? "- Session Auth" : "- JWT Auth"}
+              - JWT Auth
             </span>
           </div>
           {userProfile ? (

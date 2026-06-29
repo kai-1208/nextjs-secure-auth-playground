@@ -16,7 +16,6 @@ import { ApiResponse } from "../_types/ApiResponse";
 import { decodeJwt } from "jose";
 import { mutate } from "swr";
 import { useRouter } from "next/navigation";
-import { AUTH } from "@/config/auth";
 
 const Page: React.FC = () => {
   const c_Email = "email";
@@ -95,15 +94,10 @@ const Page: React.FC = () => {
         return;
       }
 
-      if (AUTH.isSession) {
-        // ■■ セッションベース認証の処理 ■■
-        setUserProfile(userProfileSchema.parse(body.payload));
-      } else {
-        // ■■ トークンベース認証の処理 ■■
-        const jwt = body.payload as string;
-        localStorage.setItem("jwt", jwt); // JWT をローカルストレージに保存
-        setUserProfile(userProfileSchema.parse(decodeJwt(jwt)));
-      }
+      // ■■ トークンベース認証の処理 ■■
+      const jwt = body.payload as string;
+      localStorage.setItem("jwt", jwt); // JWT をローカルストレージに保存
+      setUserProfile(userProfileSchema.parse(decodeJwt(jwt)));
       mutate("/api/auth", body);
       setIsLoginCompleted(true);
     } catch (e) {

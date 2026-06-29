@@ -19,18 +19,14 @@ enum Role {
   USER
 }
 
-enum Region {
-  TOKYO
-  OSAKA
-  OKINAWA
-}
-
 model User {
   id           String      @id @default(uuid())
   email        String      @unique
   password     String
   name         String
   role         Role        @default(USER)
+  isActive     Boolean     @default(true) @map("is_active")
+  suspendedAt  DateTime?   @map("suspended_at")
   aboutSlug    String?     @map("about_slug") @unique
   aboutContent String      @default("") 
   createdAt    DateTime    @default(now()) @map("created_at")
@@ -57,46 +53,4 @@ model StolenContent {
   content     String
   createdAt   DateTime  @default(now()) @map("created_at")
   @@map("stolen_contents")
-}
-
-model NewsItem {
-  id          String   @id @default(uuid())
-  title       String
-  content     String   @default("")
-  region      Region
-  publishedAt DateTime @default(now()) @map("published_at")
-
-  @@map("news")
-  @@index([region])
-}
-
-model Product {
-  id          String   @id
-  name        String
-  price       Int
-  CartItem    CartItem[]  
-  @@map("products")
-}
-
-model CartSession{
-  id         String    @id @default(uuid())
-  expiresAt  DateTime  @map("expires_at")
-  CartItem   CartItem[]
-
-  @@index([expiresAt]) // 有効期限切れの高速検索用
-  @@map("cart_sessions")
-}
-
-model CartItem {
-  id            String  @id @default(uuid())
-  cartSessionId String  @map("cart_session_id")
-  productId     String  @map("product_id")
-  quantity      Int
-
-  CartSession   CartSession @relation(fields: [cartSessionId], references: [id], onDelete: Cascade)
-  Product       Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
-
-  @@index([cartSessionId])
-  @@unique([cartSessionId, productId])
-  @@map("cart_items")
 }

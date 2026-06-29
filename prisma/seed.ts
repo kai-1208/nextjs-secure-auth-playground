@@ -2,7 +2,7 @@
 // 実行結果は npx prisma studio で確認可能
 import { v4 as uuid } from "uuid";
 import { prisma } from "@/libs/prisma";
-import { Role, Region } from "@/generated/prisma/enums";
+import { Role } from "@/generated/prisma/enums";
 import { UserSeed, userSeedSchema } from "../src/app/_types/UserSeed";
 
 const main = async () => {
@@ -64,10 +64,6 @@ const main = async () => {
   await prisma.user.deleteMany();
   await prisma.session.deleteMany();
   await prisma.stolenContent.deleteMany();
-  await prisma.newsItem.deleteMany();
-  await prisma.cartSession.deleteMany();
-  await prisma.product.deleteMany();
-  await prisma.cartItem.deleteMany();
 
   // ユーザ（user）テーブルにテストデータを挿入
   await prisma.user.createMany({
@@ -77,83 +73,11 @@ const main = async () => {
       password: userSeed.password,
       role: userSeed.role,
       email: userSeed.email,
+      isActive: true,
+      suspendedAt: null,
       aboutSlug: userSeed.aboutSlug || null,
       aboutContent: userSeed.aboutContent || "",
     })),
-  });
-
-  // 商品（product）テーブルにテストデータを挿入
-  await prisma.product.createMany({
-    data: [
-      {
-        id: "A-001",
-        name: "副業で人生逆転！AI自動コード生成マニュアル",
-        price: 10000,
-      },
-      {
-        id: "A-002",
-        name: "月収7桁を叩き出すCSS講座【完全無料】",
-        price: 50000,
-      },
-      {
-        id: "A-003",
-        name: "資格不要！ゼロから始める非正規暗号通貨運用術",
-        price: 30000,
-      },
-      {
-        id: "A-004",
-        name: "	パワポで月収100万：架空案件で学ぶ「営業芸」完全読本",
-        price: 15000,
-      },
-    ],
-  });
-
-  // NewsItemテーブルにダミーデータを挿入
-  await prisma.newsItem.createMany({
-    data: [
-      {
-        title: "生成AIがバグって「知らんがな」しか返さん事件",
-        region: Region.OSAKA,
-        publishedAt: new Date("2025-05-17"),
-      },
-      {
-        title: "駅前のたこ焼き屋のWi-Fiが研究棟より速い問題",
-        region: Region.OSAKA,
-        publishedAt: new Date("2025-05-18"),
-      },
-      {
-        title: "「一時的なスクリプト」が2年間も本番環境で動いていた件",
-        region: Region.TOKYO,
-        publishedAt: new Date("2025-05-18"),
-      },
-      {
-        title: "MacOSでしか動作しないレポート提出システムが爆誕",
-        region: Region.TOKYO,
-        publishedAt: new Date("2025-05-19"),
-      },
-      {
-        title: "サトウキビ畑から発見された謎の Raspberry Pi クラスタ",
-        region: Region.OKINAWA,
-        publishedAt: new Date("2025-05-19"),
-      },
-      {
-        title: "深夜に現れる謎のコメットメッセージ「ほんまごめん」",
-        region: Region.OSAKA,
-        publishedAt: new Date("2025-05-20"),
-      },
-      {
-        title:
-          "秋葉原の裏路地にしか売ってない謎のWi-Fiモジュールが研究室で大活躍",
-        region: Region.TOKYO,
-        publishedAt: new Date("2025-05-21"),
-      },
-      {
-        title:
-          "リアルタイムOSが「うちなータイム」に感化されてスケジューラが瞑想状態に",
-        region: Region.OKINAWA,
-        publishedAt: new Date("2025-05-22"),
-      },
-    ],
   });
 
   console.log("Seeding completed successfully.");
