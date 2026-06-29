@@ -52,6 +52,16 @@ export const POST = async (req: NextRequest) => {
       return NextResponse.json(res);
     }
 
+    // アカウントの有効性チェック
+    if (!user.isActive) {
+      const res: ApiResponse<null> = {
+        success: false,
+        payload: null,
+        message: "このアカウントは停止されています。",
+      };
+      return NextResponse.json(res);
+    }
+
     const tokenMaxAgeSeconds = 60 * 60 * 3; // 3時間
 
     // ■■ トークンベース認証の処理 ■■

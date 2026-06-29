@@ -36,6 +36,14 @@ export const Header: React.FC = () => {
           {userProfile ? (
             <div className="ml-2 text-sm text-slate-400">
               <div className="flex items-center gap-x-2">
+                {userProfile.role === "ADMIN" && (
+                  <NextLink
+                    href="/admin/users"
+                    className="mr-2 text-indigo-300 hover:text-white transition-colors"
+                  >
+                    管理画面
+                  </NextLink>
+                )}
                 <div className="text-slate-200">{userProfile.name}</div>
                 <div
                   className={twMerge("cursor-pointer hover:text-white")}

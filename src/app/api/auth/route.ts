@@ -24,29 +24,37 @@ export const GET = async (req: NextRequest) => {
     }
 
     // userId から userProfile を取得
-    const user = (await prisma.user.findUnique({
+    const user = await prisma.user.findUnique({
       where: { id: userId },
       select: {
         id: true,
         name: true,
         email: true,
         role: true,
+        isActive: true,
       },
-    })) as UserProfile | null;
+    });
 
-    if (!user) {
+    if (!user || !user.isActive) {
       const res: ApiResponse<null> = {
         success: false,
         payload: null,
-        message: "ユーザ情報の取得に失敗しました。",
+        message: "認証情報が無効であるか、アカウントが停止されています。",
       };
       return NextResponse.json(res);
     }
 
+    const userProfile: UserProfile = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    };
+
     // ユーザ情報をレスポンスする
     const res: ApiResponse<UserProfile> = {
       success: true,
-      payload: user,
+      payload: userProfile,
       message: "",
       metadata: JSON.stringify({ publishedAt: new Date() }),
     };
