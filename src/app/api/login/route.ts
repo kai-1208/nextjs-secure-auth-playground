@@ -5,6 +5,8 @@ import type { UserProfile } from "@/app/_types/UserProfile";
 import type { ApiResponse } from "@/app/_types/ApiResponse";
 import { NextResponse, NextRequest } from "next/server";
 import { createJwt } from "@/app/api/_helper/createJwt";
+import { cookies } from "next/headers";
+import bcrypt from "bcryptjs";
 import { AUTH } from "@/config/auth";
 
 // キャッシュを無効化して毎回最新情報を取得
@@ -29,19 +31,20 @@ export const POST = async (req: NextRequest) => {
       where: { email: loginRequest.email },
     });
     if (!user) {
-      // 💀 このアカウント（メールアドレス）の有効無効が分かってしまう。
       const res: ApiResponse<null> = {
         success: false,
         payload: null,
-        message: "このメールアドレスは登録されていません。",
-        // message: "メールアドレスまたはパスワードの組み合わせが正しくありません。",
+        message:
+          "メールアドレスまたはパスワードの組み合わせが正しくありません。",
       };
       return NextResponse.json(res);
     }
 
-    // パスワードの検証
-    // ✍ bcrypt でハッシュ化したパスワードを検証するように書き換えよ。
-    const isValidPassword = user.password === loginRequest.password;
+    // bcryptによるパスワードの検証
+    const isValidPassword = await bcrypt.compare(
+      loginRequest.password,
+      user.password,
+    );
     if (!isValidPassword) {
       const res: ApiResponse<null> = {
         success: false,
@@ -64,11 +67,29 @@ export const POST = async (req: NextRequest) => {
 
     const tokenMaxAgeSeconds = 60 * 60 * 3; // 3時間
 
-    // ■■ トークンベース認証の処理 ■■
+    // トークンベース認証の処理
     const jwt = await createJwt(user, tokenMaxAgeSeconds);
-    const res: ApiResponse<string> = {
+
+    // jwtをHttpOnly, Secure, SameSiteのcookieに設定
+    const cookieStore = await cookies();
+    cookieStore.set("auth_token", jwt, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: tokenMaxAgeSeconds,
+      path: "/",
+    });
+
+    const userProfile: UserProfile = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    };
+
+    const res: ApiResponse<UserProfile> = {
       success: true,
-      payload: jwt,
+      payload: userProfile,
       message: "",
     };
     return NextResponse.json(res);
