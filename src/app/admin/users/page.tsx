@@ -34,12 +34,8 @@ const Page: React.FC = () => {
 
   const fetchUsers = async () => {
     try {
-      const jwt = localStorage.getItem("jwt");
-      const headers: HeadersInit = {};
-      if (jwt) headers["Authorization"] = `Bearer ${jwt}`;
-
       const res = await fetch("/api/admin/users", {
-        headers,
+        credentials: "include", // cookieを含める
         cache: "no-store",
       });
       const data: ApiResponse<AdminUser[]> = await res.json();
@@ -56,28 +52,28 @@ const Page: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    if (userProfile && userProfile.role === "ADMIN") {
-      fetchUsers();
-    } else if (userProfile) {
-      setIsInitialized(true);
-    }
-  }, [userProfile]);
+  // useEffect(() => {
+  //   if (userProfile && userProfile.role === "ADMIN") {
+  //     fetchUsers();
+  //   } else if (userProfile) {
+  //     setIsInitialized(true);
+  //   }
+  // }, [userProfile]);
 
   const handleToggleStatus = async (targetUserId: string) => {
     setActionUserId(targetUserId);
     setErrorMsg("");
     try {
-      const jwt = localStorage.getItem("jwt");
-      const headers: HeadersInit = {
-        "Content-Type": "application/json",
-      };
-      if (jwt) headers["Authorization"] = `Bearer ${jwt}`;
-
-      const res = await fetch(`/api/admin/users/${targetUserId}/toggle-status`, {
-        method: "PUT",
-        headers,
-      });
+      const res = await fetch(
+        `/api/admin/users/${targetUserId}/toggle-status`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include", // cookieを含める
+        },
+      );
       const data: ApiResponse<any> = await res.json();
       if (data.success) {
         // ローカルステートを更新
@@ -110,8 +106,12 @@ const Page: React.FC = () => {
           icon={faTriangleExclamation}
           className="mb-4 text-4xl text-amber-500"
         />
-        <h2 className="text-2xl font-bold text-slate-800">ログインが必要です</h2>
-        <p className="mt-2 text-slate-500">管理者権限のあるアカウントでログインしてください。</p>
+        <h2 className="text-2xl font-bold text-slate-800">
+          ログインが必要です
+        </h2>
+        <p className="mt-2 text-slate-500">
+          管理者権限のあるアカウントでログインしてください。
+        </p>
       </main>
     );
   }
@@ -124,7 +124,9 @@ const Page: React.FC = () => {
           className="mb-4 text-4xl text-red-500"
         />
         <h2 className="text-2xl font-bold text-slate-800">アクセス拒否</h2>
-        <p className="mt-2 text-slate-500">このページを閲覧するには管理者権限が必要です。</p>
+        <p className="mt-2 text-slate-500">
+          このページを閲覧するには管理者権限が必要です。
+        </p>
       </main>
     );
   }
@@ -146,7 +148,10 @@ const Page: React.FC = () => {
       <div className="flex items-center justify-between border-b border-slate-200 pb-4">
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">
-            <FontAwesomeIcon icon={faUsersCog} className="mr-3 text-indigo-600" />
+            <FontAwesomeIcon
+              icon={faUsersCog}
+              className="mr-3 text-indigo-600"
+            />
             管理者ダッシュボード
           </h1>
           <p className="mt-1 text-sm text-slate-500">
@@ -156,7 +161,7 @@ const Page: React.FC = () => {
       </div>
 
       {errorMsg && (
-        <div className="mt-4 rounded-lg bg-red-50 p-4 text-sm text-red-600 flex items-center gap-x-2">
+        <div className="mt-4 flex items-center gap-x-2 rounded-lg bg-red-50 p-4 text-sm text-red-600">
           <FontAwesomeIcon icon={faTriangleExclamation} />
           <span>{errorMsg}</span>
         </div>
@@ -164,7 +169,7 @@ const Page: React.FC = () => {
 
       <div className="mt-6 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
-          <thead className="bg-slate-50 text-xs font-semibold uppercase tracking-wider text-slate-500">
+          <thead className="bg-slate-50 text-xs font-semibold tracking-wider text-slate-500 uppercase">
             <tr>
               <th className="px-6 py-4">ユーザー</th>
               <th className="px-6 py-4">権限ロール</th>
@@ -187,23 +192,26 @@ const Page: React.FC = () => {
                     !isUserActive && "bg-red-50/30",
                   )}
                 >
-                  <td className="whitespace-nowrap px-6 py-4">
+                  <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex flex-col">
-                      <span className="font-bold text-slate-800 flex items-center gap-x-1.5">
+                      <span className="flex items-center gap-x-1.5 font-bold text-slate-800">
                         {user.name}
                         {isSelf && (
-                          <span className="rounded bg-indigo-100 px-1.5 py-0.5 text-2xs font-medium text-indigo-800">
+                          <span className="text-2xs rounded bg-indigo-100 px-1.5 py-0.5 font-medium text-indigo-800">
                             あなた
                           </span>
                         )}
                       </span>
-                      <span className="text-xs text-slate-400 flex items-center gap-x-1 mt-0.5">
-                        <FontAwesomeIcon icon={faEnvelope} className="text-2xs" />
+                      <span className="mt-0.5 flex items-center gap-x-1 text-xs text-slate-400">
+                        <FontAwesomeIcon
+                          icon={faEnvelope}
+                          className="text-2xs"
+                        />
                         {user.email}
                       </span>
                     </div>
                   </td>
-                  <td className="whitespace-nowrap px-6 py-4">
+                  <td className="px-6 py-4 whitespace-nowrap">
                     <span
                       className={twMerge(
                         "inline-flex items-center gap-x-1 rounded-full px-2.5 py-0.5 text-xs font-medium",
@@ -212,11 +220,14 @@ const Page: React.FC = () => {
                           : "bg-slate-100 text-slate-800",
                       )}
                     >
-                      <FontAwesomeIcon icon={faUserShield} className="text-3xs" />
+                      <FontAwesomeIcon
+                        icon={faUserShield}
+                        className="text-3xs"
+                      />
                       {user.role}
                     </span>
                   </td>
-                  <td className="whitespace-nowrap px-6 py-4">
+                  <td className="px-6 py-4 whitespace-nowrap">
                     <span
                       className={twMerge(
                         "inline-flex items-center gap-x-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold",
@@ -234,29 +245,34 @@ const Page: React.FC = () => {
                       {isUserActive ? "有効" : "無効 (停止中)"}
                     </span>
                   </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-xs text-slate-500">
+                  <td className="px-6 py-4 text-xs whitespace-nowrap text-slate-500">
                     {user.suspendedAt
                       ? new Date(user.suspendedAt).toLocaleString("ja-JP")
                       : "-"}
                   </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-xs text-slate-500">
+                  <td className="px-6 py-4 text-xs whitespace-nowrap text-slate-500">
                     {new Date(user.createdAt).toLocaleDateString("ja-JP")}
                   </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-right">
+                  <td className="px-6 py-4 text-right whitespace-nowrap">
                     <button
                       onClick={() => handleToggleStatus(user.id)}
                       disabled={isSelf || actionUserId === user.id}
                       className={twMerge(
-                        "inline-flex items-center gap-x-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold shadow-xs transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-40",
+                        "inline-flex cursor-pointer items-center gap-x-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold shadow-xs transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-40",
                         isUserActive
                           ? "bg-red-50 text-red-700 hover:bg-red-100 active:bg-red-200"
                           : "bg-green-50 text-green-700 hover:bg-green-100 active:bg-green-200",
                       )}
                     >
                       {actionUserId === user.id ? (
-                        <FontAwesomeIcon icon={faSpinner} className="animate-spin" />
+                        <FontAwesomeIcon
+                          icon={faSpinner}
+                          className="animate-spin"
+                        />
                       ) : (
-                        <FontAwesomeIcon icon={isUserActive ? faUserSlash : faUserCheck} />
+                        <FontAwesomeIcon
+                          icon={isUserActive ? faUserSlash : faUserCheck}
+                        />
                       )}
                       {isUserActive ? "停止" : "解除"}
                     </button>

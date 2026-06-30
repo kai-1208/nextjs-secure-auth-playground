@@ -43,14 +43,13 @@ const Page: React.FC = () => {
   const onSubmit = async (formValues: ChangePasswordRequest) => {
     setIsSuccess(false);
 
-    const jwt = localStorage.getItem("jwt");
     const headers: HeadersInit = { "Content-Type": "application/json" };
-    if (jwt) headers["Authorization"] = `Bearer ${jwt}`;
 
     try {
       const res = await fetch("/api/account/change-password", {
         method: "POST",
         headers,
+        credentials: "include", // cookieを含める
         cache: "no-store",
         body: JSON.stringify(formValues),
       });
