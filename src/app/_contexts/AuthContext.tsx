@@ -33,8 +33,14 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
 
   const logout = async () => {
     // ■■ トークンベース認証 ■■
-    // ローカルストレージから jwt を削除
-    localStorage.removeItem("jwt");
+    try {
+      await fetch("/api/logout", {
+        method: "DELETE",
+        credentials: "include", // cookieを含める
+      });
+    } catch (e) {
+      console.error("Logout failed:", e);
+    }
     // SWR キャッシュを無効化
     mutate(() => true, undefined, { revalidate: false });
     return true;
