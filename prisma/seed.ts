@@ -4,6 +4,7 @@ import { v4 as uuid } from "uuid";
 import { prisma } from "@/libs/prisma";
 import { Role } from "@/generated/prisma/enums";
 import { UserSeed, userSeedSchema } from "../src/app/_types/UserSeed";
+import bcrypt from "bcryptjs";
 
 const main = async () => {
   console.log("Seeding database...");
@@ -65,12 +66,19 @@ const main = async () => {
   await prisma.session.deleteMany();
   await prisma.stolenContent.deleteMany();
 
+  const hashedUserSeeds = await Promise.all(
+    userSeeds.map(async (userSeed) => ({
+      ...userSeed,
+      password: await bcrypt.hash(userSeed.password, 10),
+    })),
+  );
+
   // ユーザ（user）テーブルにテストデータを挿入
   await prisma.user.createMany({
-    data: userSeeds.map((userSeed) => ({
+    data: hashedUserSeeds.map((userSeed) => ({
       id: uuid(),
       name: userSeed.name,
-      password: userSeed.password,
+      password: userSeed.password, // 既にハッシュ化されている
       role: userSeed.role,
       email: userSeed.email,
       isActive: true,

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@/app/_hooks/useAuth";
 import type { ApiResponse } from "@/app/_types/ApiResponse";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -32,7 +32,7 @@ const Page: React.FC = () => {
   const [errorMsg, setErrorMsg] = useState("");
   const [actionUserId, setActionUserId] = useState<string | null>(null);
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       const res = await fetch("/api/admin/users", {
         credentials: "include", // cookieを含める
@@ -50,15 +50,50 @@ const Page: React.FC = () => {
     } finally {
       setIsInitialized(true);
     }
-  };
+  }, []);
 
-  // useEffect(() => {
-  //   if (userProfile && userProfile.role === "ADMIN") {
-  //     fetchUsers();
-  //   } else if (userProfile) {
-  //     setIsInitialized(true);
-  //   }
-  // }, [userProfile]);
+  useEffect(() => {
+    // 【修正】未ログイン、または管理者でない場合は、データの読み込みを行わずにここで終了します。
+    // （setIsInitialized(true) の同期的呼び出しを削除してエラーを回避）
+    if (!userProfile || userProfile.role !== "ADMIN") {
+      return;
+    }
+
+    let isActive = true;
+
+    const loadUsers = async () => {
+      try {
+        const res = await fetch("/api/admin/users", {
+          credentials: "include",
+          cache: "no-store",
+        });
+
+        const data: ApiResponse<AdminUser[]> = await res.json();
+
+        if (!isActive) return;
+
+        if (data.success && data.payload) {
+          setUsers(data.payload);
+        } else {
+          setErrorMsg(data.message || "ユーザー一覧の取得に失敗しました。");
+        }
+      } catch (e) {
+        console.error(e);
+        if (!isActive) return;
+        setErrorMsg("ネットワークエラーが発生しました。");
+      } finally {
+        if (isActive) {
+          setIsInitialized(true);
+        }
+      }
+    };
+
+    void loadUsers();
+
+    return () => {
+      isActive = false;
+    };
+  }, [userProfile, setIsInitialized, setUsers, setErrorMsg]);
 
   const handleToggleStatus = async (targetUserId: string) => {
     setActionUserId(targetUserId);
@@ -74,7 +109,13 @@ const Page: React.FC = () => {
           credentials: "include", // cookieを含める
         },
       );
-      const data: ApiResponse<any> = await res.json();
+
+      type ToggleUserPayload = Pick<
+        AdminUser,
+        "id" | "name" | "email" | "role" | "isActive" | "suspendedAt"
+      >;
+
+      const data: ApiResponse<ToggleUserPayload> = await res.json();
       if (data.success) {
         // ローカルステートを更新
         setUsers((prev) =>
