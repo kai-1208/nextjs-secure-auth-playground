@@ -59,8 +59,10 @@ const Page: React.FC = () => {
   }, [isLoginCompleted, router]);
 
   // ルートエラーのクリア用 onChange ハンドラ合成
-  const { onChange: onEmailChange, ...emailRegister } = formMethods.register(c_Email);
-  const { onChange: onPasswordChange, ...passwordRegister } = formMethods.register(c_Password);
+  const { onChange: onEmailChange, ...emailRegister } =
+    formMethods.register(c_Email);
+  const { onChange: onPasswordChange, ...passwordRegister } =
+    formMethods.register(c_Password);
   const clearRootOnChange =
     (originalOnChange: React.ChangeEventHandler<HTMLInputElement>) =>
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -81,7 +83,7 @@ const Page: React.FC = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formValues),
-        credentials: "same-origin",
+        credentials: "include", // cookieを含める
         cache: "no-store",
       });
       setIsPending(false);
@@ -94,10 +96,13 @@ const Page: React.FC = () => {
         return;
       }
 
-      // ■■ トークンベース認証の処理 ■■
-      const jwt = body.payload as string;
-      localStorage.setItem("jwt", jwt); // JWT をローカルストレージに保存
-      setUserProfile(userProfileSchema.parse(decodeJwt(jwt)));
+      // トークンベース認証の処理
+      // const jwt = body.payload as string;
+      // jwtは自動的にcookieに保存
+      // localStorage.setItem("jwt", jwt); // JWT をローカルストレージに保存
+      // setUserProfile(userProfileSchema.parse(decodeJwt(jwt)));
+      const userProfile = userProfileSchema.parse(body.payload);
+      setUserProfile(userProfile);
       mutate("/api/auth", body);
       setIsLoginCompleted(true);
     } catch (e) {
