@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { cookies } from "next/headers";
 import { jwtVerify } from "jose";
 import { userProfileSchema } from "@/app/_types/UserProfile";
 import { Role } from "@/app/_types/Role";
@@ -6,9 +7,20 @@ import { prisma } from "@/libs/prisma";
 
 /**
  * JWTを検証し、該当ユーザーがデータベース上に存在し、かつ ADMIN ロールで isActive であるかチェックする
+ * Cookie または Authorization ヘッダから JWT を取得する
  */
 export const verifyAdmin = async (req: NextRequest): Promise<string | null> => {
-  const jwt = req.headers.get("Authorization")?.replace("Bearer ", "");
+  const cookieStore = await cookies();
+  const jwtFromCookie = cookieStore.get("auth_token")?.value;
+
+  // Authorization ヘッダから JWT を取得（後方互換性）
+  const jwtFromHeader = req.headers
+    .get("Authorization")
+    ?.replace("Bearer ", "");
+
+  // Cookie または ヘッダから JWT を使用
+  const jwt = jwtFromCookie || jwtFromHeader;
+
   if (!jwt) {
     console.error("JWT is missing in the request headers.");
     return null;
