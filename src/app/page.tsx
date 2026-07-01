@@ -1,6 +1,6 @@
 import NextLink from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCode, faIdCard } from "@fortawesome/free-solid-svg-icons";
+import { faCode, faIdCard, faKey } from "@fortawesome/free-solid-svg-icons";
 import { prisma } from "@/libs/prisma";
 
 export const dynamic = "force-dynamic";
@@ -19,6 +19,11 @@ const links = [
   {
     href: "/member/about",
     label: "公開プロフィールの確認・編集",
+    info: "ログインが必要なコンテンツ",
+  },
+  {
+    href: "/member/change-password",
+    label: "パスワード変更",
     info: "ログインが必要なコンテンツ",
   },
 ];
