@@ -208,121 +208,123 @@ const Page: React.FC = () => {
         </div>
       )}
 
-      <div className="mt-6 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-        <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
-          <thead className="bg-slate-50 text-xs font-semibold tracking-wider text-slate-500 uppercase">
-            <tr>
-              <th className="px-6 py-4">ユーザー</th>
-              <th className="px-6 py-4">権限ロール</th>
-              <th className="px-6 py-4">ステータス</th>
-              <th className="px-6 py-4">停止日</th>
-              <th className="px-6 py-4">登録日</th>
-              <th className="px-6 py-4 text-right">アクション</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-200 bg-white">
-            {users.map((user) => {
-              const isSelf = user.id === userProfile.id;
-              const isUserActive = user.isActive;
+      <div className="mt-6 overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div className="min-w-full">
+          <table className="w-full divide-y divide-slate-200 text-left text-sm">
+            <thead className="bg-slate-50 text-xs font-semibold tracking-wider text-slate-500 uppercase">
+              <tr>
+                <th className="px-6 py-4">ユーザー</th>
+                <th className="px-6 py-4">権限ロール</th>
+                <th className="px-6 py-4">ステータス</th>
+                <th className="px-6 py-4">停止日</th>
+                <th className="px-6 py-4">登録日</th>
+                <th className="px-6 py-4 text-right">アクション</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-200 bg-white">
+              {users.map((user) => {
+                const isSelf = user.id === userProfile.id;
+                const isUserActive = user.isActive;
 
-              return (
-                <tr
-                  key={user.id}
-                  className={twMerge(
-                    "transition-colors hover:bg-slate-50",
-                    !isUserActive && "bg-red-50/30",
-                  )}
-                >
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex flex-col">
-                      <span className="flex items-center gap-x-1.5 font-bold text-slate-800">
-                        {user.name}
-                        {isSelf && (
-                          <span className="text-2xs rounded bg-indigo-100 px-1.5 py-0.5 font-medium text-indigo-800">
-                            あなた
-                          </span>
-                        )}
-                      </span>
-                      <span className="mt-0.5 flex items-center gap-x-1 text-xs text-slate-400">
-                        <FontAwesomeIcon
-                          icon={faEnvelope}
-                          className="text-2xs"
-                        />
-                        {user.email}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={twMerge(
-                        "inline-flex items-center gap-x-1 rounded-full px-2.5 py-0.5 text-xs font-medium",
-                        user.role === "ADMIN"
-                          ? "bg-purple-100 text-purple-800"
-                          : "bg-slate-100 text-slate-800",
-                      )}
-                    >
-                      <FontAwesomeIcon
-                        icon={faUserShield}
-                        className="text-3xs"
-                      />
-                      {user.role}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={twMerge(
-                        "inline-flex items-center gap-x-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold",
-                        isUserActive
-                          ? "bg-green-100 text-green-800"
-                          : "bg-red-100 text-red-800",
-                      )}
-                    >
+                return (
+                  <tr
+                    key={user.id}
+                    className={twMerge(
+                      "transition-colors hover:bg-slate-50",
+                      !isUserActive && "bg-red-50/30",
+                    )}
+                  >
+                    <td className="px-6 py-4">
+                      <div className="flex flex-col">
+                        <span className="flex items-center gap-x-1.5 font-bold text-slate-800">
+                          {user.name}
+                          {isSelf && (
+                            <span className="text-2xs rounded bg-indigo-100 px-1.5 py-0.5 font-medium text-indigo-800">
+                              あなた
+                            </span>
+                          )}
+                        </span>
+                        <span className="mt-0.5 flex items-center gap-x-1 text-xs text-slate-400">
+                          <FontAwesomeIcon
+                            icon={faEnvelope}
+                            className="text-2xs"
+                          />
+                          {user.email}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
                       <span
                         className={twMerge(
-                          "h-1.5 w-1.5 rounded-full",
-                          isUserActive ? "bg-green-500" : "bg-red-500",
+                          "inline-flex items-center gap-x-1 rounded-full px-2.5 py-0.5 text-xs font-medium",
+                          user.role === "ADMIN"
+                            ? "bg-purple-100 text-purple-800"
+                            : "bg-slate-100 text-slate-800",
                         )}
-                      />
-                      {isUserActive ? "有効" : "無効 (停止中)"}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-xs whitespace-nowrap text-slate-500">
-                    {user.suspendedAt
-                      ? new Date(user.suspendedAt).toLocaleString("ja-JP")
-                      : "-"}
-                  </td>
-                  <td className="px-6 py-4 text-xs whitespace-nowrap text-slate-500">
-                    {new Date(user.createdAt).toLocaleDateString("ja-JP")}
-                  </td>
-                  <td className="px-6 py-4 text-right whitespace-nowrap">
-                    <button
-                      onClick={() => handleToggleStatus(user.id)}
-                      disabled={isSelf || actionUserId === user.id}
-                      className={twMerge(
-                        "inline-flex cursor-pointer items-center gap-x-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold shadow-xs transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-40",
-                        isUserActive
-                          ? "bg-red-50 text-red-700 hover:bg-red-100 active:bg-red-200"
-                          : "bg-green-50 text-green-700 hover:bg-green-100 active:bg-green-200",
-                      )}
-                    >
-                      {actionUserId === user.id ? (
+                      >
                         <FontAwesomeIcon
-                          icon={faSpinner}
-                          className="animate-spin"
+                          icon={faUserShield}
+                          className="text-3xs"
                         />
-                      ) : (
-                        <FontAwesomeIcon
-                          icon={isUserActive ? faUserSlash : faUserCheck}
+                        {user.role}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span
+                        className={twMerge(
+                          "inline-flex items-center gap-x-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold",
+                          isUserActive
+                            ? "bg-green-100 text-green-800"
+                            : "bg-red-100 text-red-800",
+                        )}
+                      >
+                        <span
+                          className={twMerge(
+                            "h-1.5 w-1.5 rounded-full",
+                            isUserActive ? "bg-green-500" : "bg-red-500",
+                          )}
                         />
-                      )}
-                      {isUserActive ? "停止" : "解除"}
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+                        {isUserActive ? "有効" : "停止中"}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-xs">
+                      {user.suspendedAt
+                        ? new Date(user.suspendedAt).toLocaleDateString("ja-JP")
+                        : "-"}
+                    </td>
+                    <td className="px-6 py-4 text-xs">
+                      {new Date(user.createdAt).toLocaleDateString("ja-JP")}
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <button
+                        onClick={() => handleToggleStatus(user.id)}
+                        disabled={isSelf || actionUserId === user.id}
+                        className={twMerge(
+                          "inline-flex cursor-pointer items-center gap-x-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold shadow-xs transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50",
+                          isUserActive
+                            ? "bg-red-50 text-red-700 hover:bg-red-100 active:bg-red-200"
+                            : "bg-green-50 text-green-700 hover:bg-green-100 active:bg-green-200",
+                        )}
+                      >
+                        {actionUserId === user.id ? (
+                          <FontAwesomeIcon
+                            icon={faSpinner}
+                            className="animate-spin"
+                          />
+                        ) : (
+                          <FontAwesomeIcon
+                            icon={isUserActive ? faUserSlash : faUserCheck}
+                          />
+                        )}
+                        {isUserActive ? "停止" : "解除"}
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
     </main>
   );
