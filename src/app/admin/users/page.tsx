@@ -188,14 +188,14 @@ const Page: React.FC = () => {
     <main className="py-4">
       <div className="flex items-center justify-between border-b border-slate-200 pb-4">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">
+          <h1 className="text-3xl font-extrabold tracking-tight text-white-900">
             <FontAwesomeIcon
               icon={faUsersCog}
               className="mr-3 text-indigo-600"
             />
             管理者ダッシュボード
           </h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-sm text-slate-300">
             登録ユーザーのアカウント状況管理・停止・ロック解除制御を行います。
           </p>
         </div>
