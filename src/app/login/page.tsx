@@ -8,7 +8,13 @@ import { UserProfile, userProfileSchema } from "../_types/UserProfile";
 import { TextInputField } from "@/app/_components/TextInputField";
 import { ErrorMsgField } from "@/app/_components/ErrorMsgField";
 import { Button } from "@/app/_components/Button";
-import { faSpinner, faRightToBracket } from "@fortawesome/free-solid-svg-icons";
+import {
+  faSpinner,
+  faRightToBracket,
+  faEye,
+  faEyeSlash,
+  faCheckCircle,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { twMerge } from "tailwind-merge";
 import NextLink from "next/link";
@@ -25,6 +31,7 @@ const Page: React.FC = () => {
   const [isPending, setIsPending] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isLoginCompleted, setIsLoginCompleted] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   // フォーム処理関連の準備と設定
   const formMethods = useForm<LoginRequest>({
@@ -118,6 +125,31 @@ const Page: React.FC = () => {
         <FontAwesomeIcon icon={faRightToBracket} className="mr-1.5" />
         Login
       </div>
+
+      {/* ✅ ログイン成功時のバナー（フォームの前に表示） */}
+      {isLoginCompleted && userProfile && (
+        <div
+          className={twMerge(
+            "mt-6 flex items-center gap-x-3 rounded-xl",
+            "border border-green-200 bg-green-50 px-6 py-4 shadow-sm",
+          )}
+        >
+          <FontAwesomeIcon
+            icon={faCheckCircle}
+            className="text-2xl text-green-500"
+          />
+          <div>
+            <p className="text-lg font-bold text-green-800">
+              ✅ ログイン成功！
+            </p>
+            <p className="text-sm text-green-700">
+              ようこそ、
+              <span className="font-semibold">{userProfile.name}</span> さん。
+            </p>
+          </div>
+        </div>
+      )}
+
       <form
         noValidate
         onSubmit={formMethods.handleSubmit(onSubmit)}
@@ -147,16 +179,26 @@ const Page: React.FC = () => {
           <label htmlFor={c_Password} className="mb-2 block font-bold">
             パスワード
           </label>
-          <TextInputField
-            {...passwordRegister}
-            onChange={clearRootOnChange(onPasswordChange)}
-            id={c_Password}
-            placeholder="*****"
-            type="password"
-            disabled={isPending || isLoginCompleted}
-            error={!!fieldErrors.password}
-            autoComplete="off"
-          />
+          <div className="relative">
+            <TextInputField
+              {...passwordRegister}
+              onChange={clearRootOnChange(onPasswordChange)}
+              id={c_Password}
+              placeholder="*****"
+              type={showPassword ? "text" : "password"}
+              disabled={isPending || isLoginCompleted}
+              error={!!fieldErrors.password}
+              autoComplete="off"
+            />
+            <button
+              type="button"
+              tabIndex={-1}
+              onClick={() => setShowPassword((v) => !v)}
+              className="absolute top-1/2 right-3 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+            >
+              <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+            </button>
+          </div>
           <ErrorMsgField msg={fieldErrors.password?.message} />
           <ErrorMsgField msg={fieldErrors.root?.message} />
         </div>

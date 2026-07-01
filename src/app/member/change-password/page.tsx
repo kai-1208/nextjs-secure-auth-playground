@@ -72,11 +72,11 @@ const Page: React.FC = () => {
     <main className="py-4">
       {/* Page Header */}
       <div className="mb-6 border-b border-slate-200 pb-4">
-        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">
+        <h1 className="text-white-900 text-3xl font-extrabold tracking-tight">
           <FontAwesomeIcon icon={faKey} className="mr-3 text-indigo-600" />
           パスワード変更
         </h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <p className="mt-1 text-sm text-slate-300">
           現在のパスワードを確認後、新しいパスワードに変更します。
         </p>
       </div>
@@ -120,7 +120,7 @@ const Page: React.FC = () => {
               >
                 現在のパスワード
               </label>
-              <div className="relative">
+              <div className="relative text-slate-700">
                 <TextInputField
                   {...formMethods.register(c_CurrentPassword)}
                   id={c_CurrentPassword}
@@ -134,7 +134,7 @@ const Page: React.FC = () => {
                   type="button"
                   tabIndex={-1}
                   onClick={() => setShowCurrentPassword((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  className="absolute top-1/2 right-3 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                 >
                   <FontAwesomeIcon
                     icon={showCurrentPassword ? faEyeSlash : faEye}
@@ -155,7 +155,7 @@ const Page: React.FC = () => {
               >
                 新しいパスワード
               </label>
-              <div className="relative">
+              <div className="relative text-slate-700">
                 <TextInputField
                   {...formMethods.register(c_NewPassword)}
                   id={c_NewPassword}
@@ -169,7 +169,7 @@ const Page: React.FC = () => {
                   type="button"
                   tabIndex={-1}
                   onClick={() => setShowNewPassword((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  className="absolute top-1/2 right-3 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                 >
                   <FontAwesomeIcon
                     icon={showNewPassword ? faEyeSlash : faEye}
@@ -187,7 +187,7 @@ const Page: React.FC = () => {
               >
                 新しいパスワード（確認用）
               </label>
-              <div className="relative">
+              <div className="relative text-slate-700">
                 <TextInputField
                   {...formMethods.register(c_ConfirmPassword)}
                   id={c_ConfirmPassword}
@@ -201,7 +201,7 @@ const Page: React.FC = () => {
                   type="button"
                   tabIndex={-1}
                   onClick={() => setShowConfirmPassword((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  className="absolute top-1/2 right-3 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                 >
                   <FontAwesomeIcon
                     icon={showConfirmPassword ? faEyeSlash : faEye}

@@ -8,6 +8,8 @@ docs/*
 
 app.db
 
+dev.db
+
 # dependencies
 /node_modules
 /.pnp
